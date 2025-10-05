@@ -105,6 +105,12 @@
       opacity: 0; transition: opacity .25s ease;
     }
     .goPanel.show { opacity: 1; }
+    /* ===== パスワードゲート ===== */
+    .gatePanel { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(11,19,43,.72); z-index: 5; }
+    .gateCard { background: rgba(18,26,52,.98); border: 1px solid #2a3560; border-radius: 16px; padding: 18px; width: min(360px,90%); text-align: center; box-shadow: 0 14px 40px rgba(0,0,0,.6); }
+    .gateCard h3 { margin: 6px 0 10px; }
+    .gateCard input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #2a3560; background:#0f1630; color:#fff; outline: none; }
+    .gateCard .hint { opacity:.8; font-size: 12px; margin-top: 8px; }
     .goCard {
       pointer-events: auto;
       padding: 16px 18px; border-radius: 16px; text-align: center; width: min(360px, 90%);
@@ -127,6 +133,18 @@
     </div>
 
     <div id="stageWrap">
+      <!-- パスワードゲート -->
+      <div class="gatePanel" id="pwGate">
+        <div class="gateCard">
+          <h3>パスワードを入力してください</h3>
+          <p style="margin:0 0 10px">開始パスワード：<b>AK</b>（大文字）</p>
+          <input id="pwInput" type="password" placeholder="AK" autocomplete="off" />
+          <div style="margin-top:12px; display:flex; gap:8px; justify-content:center">
+            <button id="pwOk">開始する</button>
+          </div>
+          <div class="hint">正しく入力するとゲームが始まります。</div>
+        </div>
+      </div>
       <!-- Matter.js が描画するキャンバス -->
       <canvas id="stage"></canvas>
       <div class="hud">
@@ -193,6 +211,10 @@
       const goPanel = document.getElementById('goPanel');
       const againBtn = document.getElementById('againBtn');
       const finalScoreEl = document.getElementById('finalScore');
+      // パスワード要素
+      const pwGate = document.getElementById('pwGate');
+      const pwInput = document.getElementById('pwInput');
+      const pwOk = document.getElementById('pwOk');
 
       // 固定サイズ（ゲームバランス調整済）
       const WIDTH = Math.min(440, Math.floor(window.innerWidth * 0.92));
@@ -241,16 +263,45 @@
       let dropCooldown = false; // 連打防止
       // ==== パスワードロック ====
       let unlocked = false;
-      function requirePassword(){
-        const v = prompt('パスワードを入力してください（大文字/小文字区別）：');
+      function unlockIfValid(){
+        const v = (pwInput.value || '').trim();
         if (v === 'AK') {
           unlocked = true;
+          pwGate.style.display = 'none';
+          startObstacles();
+          pwInput.blur();
         } else {
-          alert('パスワードが違います');
-          requirePassword();
+          pwInput.value = '';
+          pwInput.placeholder = 'ちがいます…もう一度';
         }
       }
-      requirePassword();
+      pwOk.addEventListener('click', unlockIfValid);
+      pwInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') unlockIfValid(); });
+      setTimeout(()=>{ try{ pwInput.focus(); }catch{} }, 50);
+
+      // ==== おじゃま物体（絶対に消えない） ====
+      let obstacleTimer = null;
+      function startObstacles(){
+        if (obstacleTimer) return;
+        obstacleTimer = setInterval(()=>{
+          if (!unlocked || gameOver) return;
+          spawnObstacle();
+        }, 8000); // 8秒ごとに出現（調整可）
+      }
+      function spawnObstacle(){
+        const x = 40 + Math.random()*(WIDTH-80);
+        const y = 40; // 画面上から落ちてくる
+        const r = 20 + Math.random()*16;
+        const body = Bodies.polygon(x, y, 6, r, {
+          restitution: 0.4,
+          friction: 0.2,
+          frictionAir: 0.004,
+          render: { fillStyle: '#b48ef5', strokeStyle: '#2a2a2a', lineWidth: 1 }
+        });
+        body.plugin = { obstacle: true }; // 合体・判定の対象外
+        World.add(engine.world, body);
+        Body.setAngularVelocity(body, (Math.random()-0.5)*0.4);
+      }
 
       drawNextPreview(nextTier);
 
