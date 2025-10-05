@@ -21,7 +21,7 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      touch-action: none; /* for better mobile control */
+      touch-action: none;
     }
     .wrap {
       display: grid;
@@ -44,38 +44,24 @@
       gap: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
-    .brand {
-      font-weight: 700;
-      letter-spacing: .03em;
-    }
+    .brand { font-weight: 700; letter-spacing: .03em; }
     .score {
       font-variant-numeric: tabular-nums;
-      padding: 4px 8px;
-      border-radius: 8px;
-      background: #121a34;
-      border: 1px solid #2a3560;
+      padding: 4px 8px; border-radius: 8px;
+      background: #121a34; border: 1px solid #2a3560;
     }
-    .nextbox {
-      display: grid;
-      grid-template-columns: auto auto;
-      gap: 8px;
-      align-items: center;
-    }
+    .nextbox { display: grid; grid-template-columns: auto auto; gap: 8px; align-items: center; }
     .nextbox small { opacity: .8; }
     #nextCanvas {
-      width: 40px; height: 40px;
-      background: #0f1630;
+      width: 40px; height: 40px; background: #0f1630;
       border: 1px solid #2a3560; border-radius: 8px;
     }
     button, .btn {
-      appearance: none; color: var(--text);
-      background: var(--accent);
-      border: none; border-radius: 10px;
-      padding: 8px 12px; font-weight: 700; cursor: pointer;
+      appearance: none; color: var(--text); background: var(--accent);
+      border: none; border-radius: 10px; padding: 8px 12px; font-weight: 700; cursor: pointer;
       box-shadow: 0 6px 18px rgba(91,192,190,.35);
     }
     button:active { transform: translateY(1px); }
-
     #stageWrap { position: relative; }
     #stage {
       display: block;
@@ -83,23 +69,14 @@
       height: calc(min(440px, 92vw) * 1.5);
       max-height: 88vh;
       background: radial-gradient(1200px 400px at 50% -200px, #20305e, #0b132b 60%);
-      border: 1px solid #2a3560;
-      border-radius: 16px;
+      border: 1px solid #2a3560; border-radius: 16px;
       box-shadow: inset 0 4px 24px rgba(0,0,0,.35), 0 12px 28px rgba(0,0,0,.35);
     }
-    .hud {
-      position: absolute; inset: 0; pointer-events: none;
-      border-radius: 16px;
-    }
-    .line {
-      position: absolute; left: 8px; right: 8px; height: 0;
-      border-top: 2px dashed rgba(255,255,255,.25);
-    }
+    .hud { position: absolute; inset: 0; pointer-events: none; border-radius: 16px; }
+    .line { position: absolute; left: 8px; right: 8px; height: 0; border-top: 2px dashed rgba(255,255,255,.25); }
     .line.top { top: 64px; }
     .line.lose { top: 104px; border-top-color: var(--warn); }
-    .ghost {
-      position: absolute; width: 0; height: 0; left: 0; top: 0; pointer-events: none;
-    }
+    .ghost { position: absolute; width: 0; height: 0; left: 0; top: 0; pointer-events: none; }
     .goPanel {
       position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
       background: linear-gradient(180deg, rgba(11,19,43,0), rgba(11,19,43,.55));
@@ -107,12 +84,9 @@
     }
     .goPanel.show { opacity: 1; }
     .goCard {
-      pointer-events: auto;
-      padding: 16px 18px; border-radius: 16px; text-align: center; width: min(360px, 90%);
-      backdrop-filter: blur(8px);
-      background: rgba(18,26,52,.92);
-      border: 1px solid #2a3560;
-      box-shadow: 0 14px 40px rgba(0,0,0,.5);
+      pointer-events: auto; padding: 16px 18px; border-radius: 16px; text-align: center; width: min(360px, 90%);
+      backdrop-filter: blur(8px); background: rgba(18,26,52,.92);
+      border: 1px solid #2a3560; box-shadow: 0 14px 40px rgba(0,0,0,.5);
     }
     .footer { opacity: .7; font-size: 12px; }
     a { color: #8fd6d4; }
@@ -128,7 +102,6 @@
     </div>
 
     <div id="stageWrap">
-      <!-- Matter.js が描画するキャンバス -->
       <canvas id="stage"></canvas>
       <div class="hud">
         <div class="line top" title="ここより上で積むと危険ゾーン"></div>
@@ -151,12 +124,11 @@
     </div>
   </div>
 
-  <!-- Matter.js CDN -->
-  <script src="https://unpkg.com/matter-js@0.20.0/build/matter.min.js" defer>/**/})();
-  </script>
+  <!-- ★ CDN読み込みは削除しました（ローカルの matter.min.js を使用） -->
+
   <script>
     window.addEventListener('load', () => {
-      const USE_IMAGES = true; // 画像を使う場合は true に。assets/*.png を配置してください。
+      const USE_IMAGES = true;
 
       // 画像ロード（任意）
       const imageFiles = {
@@ -195,55 +167,44 @@
       const againBtn = document.getElementById('againBtn');
       const finalScoreEl = document.getElementById('finalScore');
 
-      // 固定サイズ（ゲームバランス調整済）
       const WIDTH = Math.min(440, Math.floor(window.innerWidth * 0.92));
       const HEIGHT = Math.min(720, Math.floor(WIDTH * 1.5));
       stage.width = WIDTH; stage.height = HEIGHT;
 
-      // ガイドライン
-      const SPAWN_Y = 160; // 出現ライン（負けラインより十分下に）
-      const LOSE_Y = 104; // ゲームオーバーライン（この高さより上に積まれるとOUT）
+      const SPAWN_Y = 160; // 出現ライン
+      const LOSE_Y = 104;  // ゲームオーバーライン
 
-      // Matter.js ショートハンド
       const { Engine, Render, Runner, World, Bodies, Body, Events, Composite } = Matter;
 
       const engine = Engine.create();
-      engine.gravity.y = 1.05; // ほんの少し軽め
+      engine.gravity.y = 1.05;
       const render = Render.create({
         canvas: stage,
         engine,
-        options: {
-          width: WIDTH,
-          height: HEIGHT,
-          wireframes: false,
-          background: 'transparent'
-        }
+        options: { width: WIDTH, height: HEIGHT, wireframes: false, background: 'transparent' }
       });
       Render.run(render);
       const runner = Runner.create();
       Runner.run(runner, engine);
 
-      // 境界（壁と床）
       const wallT = 40;
       const walls = [
-        Bodies.rectangle(WIDTH/2, HEIGHT + wallT/2 - 8, WIDTH-16, wallT, { isStatic: true, render:{ fillStyle: '#132048' } }), // floor (少し高摩擦)
-        Bodies.rectangle(-wallT/2 + 8, HEIGHT/2, wallT, HEIGHT-16, { isStatic: true, render:{ fillStyle: '#162350' } }), // left
-        Bodies.rectangle(WIDTH + wallT/2 - 8, HEIGHT/2, wallT, HEIGHT-16, { isStatic: true, render:{ fillStyle: '#162350' } }), // right
-        Bodies.rectangle(WIDTH/2, -wallT/2, WIDTH, wallT, { isStatic: true, render:{ fillStyle: 'transparent' } }), // ceiling guard
+        Bodies.rectangle(WIDTH/2, HEIGHT + wallT/2 - 8, WIDTH-16, wallT, { isStatic: true, render:{ fillStyle: '#132048' } }),
+        Bodies.rectangle(-wallT/2 + 8, HEIGHT/2, wallT, HEIGHT-16, { isStatic: true, render:{ fillStyle: '#162350' } }),
+        Bodies.rectangle(WIDTH + wallT/2 - 8, HEIGHT/2, wallT, HEIGHT-16, { isStatic: true, render:{ fillStyle: '#162350' } }),
+        Bodies.rectangle(WIDTH/2, -wallT/2, WIDTH, wallT, { isStatic: true, render:{ fillStyle: 'transparent' } }),
       ];
       World.add(engine.world, walls);
 
-      // ステート
       let currentX = WIDTH/2;
       let currentTier = rollTier();
       let nextTier = rollTier();
       let score = 0;
       let gameOver = false;
-      let dropCooldown = false; // 連打防止
+      let dropCooldown = false;
 
       drawNextPreview(nextTier);
 
-      // 入力
       const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
       function setXFromClient(clientX) {
         const rect = stage.getBoundingClientRect();
@@ -251,14 +212,11 @@
         currentX = clamp(x, 24, WIDTH-24);
       }
       stage.addEventListener('pointermove', (e) => setXFromClient(e.clientX));
-      stage.addEventListener('pointerdown', (e) => {
-        setXFromClient(e.clientX);
-        tryDrop();
-      });
+      stage.addEventListener('pointerdown', (e) => { setXFromClient(e.clientX); tryDrop(); });
       window.addEventListener('keydown', (e) => {
-        if (e.code === 'ArrowLeft') { currentX = clamp(currentX - 18, 24, WIDTH-24); }
-        if (e.code === 'ArrowRight'){ currentX = clamp(currentX + 18, 24, WIDTH-24); }
-        if (e.code === 'Space' || e.code === 'Enter') { tryDrop(); }
+        if (e.code === 'ArrowLeft')  currentX = clamp(currentX - 18, 24, WIDTH-24);
+        if (e.code === 'ArrowRight') currentX = clamp(currentX + 18, 24, WIDTH-24);
+        if (e.code === 'Space' || e.code === 'Enter') tryDrop();
         if (e.key === 'r' || e.key === 'R') restart();
       }, { passive: false });
       restartBtn.addEventListener('click', restart);
@@ -273,13 +231,11 @@
         drawNextPreview(nextTier);
       }
 
-      // ランダム生成（序盤は小さめが出やすい）
       function rollTier(){
         const bag = [0,0,0,1,1,2];
         return bag[Math.floor(Math.random()*bag.length)];
       }
 
-      // ピース生成
       function createPiece(tier, x, y){
         const t = TIERS[tier];
         const body = Bodies.circle(x, y, t.r, {
@@ -292,17 +248,10 @@
         body.plugin = { tier, removed: false, bornAt: performance.now() };
         return body;
       }
-      function dropPiece(tier, x, y){
-        const body = createPiece(tier, x, y);
-        World.add(engine.world, body);
-      }
+      function dropPiece(tier, x, y){ World.add(engine.world, createPiece(tier, x, y)); }
 
-      // スコア
-      function addScore(v){
-        score += v; scoreEl.textContent = score;
-      }
+      function addScore(v){ score += v; scoreEl.textContent = score; }
 
-      // マージ制御
       const mergeKeys = new Set();
       Events.on(engine, 'collisionStart', (e) => {
         for (const p of e.pairs){
@@ -311,12 +260,9 @@
           if (a.plugin.removed || b.plugin.removed) continue;
           if (a.plugin.tier === undefined || b.plugin.tier === undefined) continue;
           if (a.plugin.tier !== b.plugin.tier) continue;
-          // 壁など静的とは合体させない
           if (a.isStatic || b.isStatic) continue;
-          // 生直後は誤爆防止
           const now = performance.now();
           if (now - a.plugin.bornAt < 80 || now - b.plugin.bornAt < 80) continue;
-
           const key = [a.id, b.id].sort().join('-');
           if (mergeKeys.has(key)) continue;
           mergeKeys.add(key);
@@ -324,10 +270,7 @@
         }
       });
 
-      function queueMerge(a, b){
-        // 次フレームで実行（安定化）
-        setTimeout(() => doMerge(a, b), 0);
-      }
+      function queueMerge(a, b){ setTimeout(() => doMerge(a, b), 0); }
       function doMerge(a, b){
         try {
           if (!Composite.get(engine.world, a.id, 'body') || !Composite.get(engine.world, b.id, 'body')) return;
@@ -336,26 +279,18 @@
           const nx = (a.position.x + b.position.x)/2;
           const ny = (a.position.y + b.position.y)/2;
 
-          // 消去
           a.plugin.removed = b.plugin.removed = true;
-          World.remove(engine.world, a);
-          World.remove(engine.world, b);
+          World.remove(engine.world, a); World.remove(engine.world, b);
 
           if (tier < TIERS.length - 1) {
-            // 次ランクに昇格
-            const next = createPiece(tier + 1, nx, ny);
-            World.add(engine.world, next);
+            World.add(engine.world, createPiece(tier + 1, nx, ny));
             addScore(TIERS[tier + 1].score);
           } else {
-            // りさ同士は消滅 → ボーナス
             addScore(BONUS_CLEAR);
-            // ちょっとだけ打ち上げ花火的な演出（簡易）
             burst(nx, ny, 10);
           }
-          // 早めにゲームオーバー判定
           checkGameOver();
         } finally {
-          // クリーンアップ
           mergeKeys.clear();
         }
       }
@@ -364,53 +299,36 @@
         for (let i=0;i<n;i++){
           const r = 2 + Math.random()*3;
           const p = Bodies.circle(x, y, r, {
-            restitution: 0.6,
-            friction: 0.02,
-            density: 0.0008,
+            restitution: 0.6, friction: 0.02, density: 0.0008,
             render: { fillStyle: ['#fff','#8fd6d4','#ffd6a5','#caffbf'][i%4] }
           });
           Body.setVelocity(p, { x: (Math.random()-0.5)*6, y: -Math.random()*6 - 2 });
           World.add(engine.world, p);
-          // 自動消滅
           setTimeout(() => { try { World.remove(engine.world, p); } catch{} }, 1500 + Math.random()*500);
         }
       }
 
-      // 毎フレーム：ガイドやテキスト描画、敗北チェック
       Events.on(render, 'afterRender', () => {
         const ctx = render.context;
-
-        // ピースのラベル or 画像
         const bodies = Composite.allBodies(engine.world);
         for (const body of bodies){
           if (!body.plugin || body.plugin.tier === undefined) continue;
           const t = TIERS[body.plugin.tier];
           const { x, y } = body.position;
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(body.angle);
+          ctx.save(); ctx.translate(x, y); ctx.rotate(body.angle);
 
           if (USE_IMAGES && images[body.plugin.tier] && images[body.plugin.tier].complete) {
-            // 円形にクリップして画像を描く
-            ctx.beginPath();
-            ctx.arc(0, 0, t.r, 0, Math.PI*2);
-            ctx.closePath();
-            ctx.clip();
-            const img = images[body.plugin.tier];
-            const s = t.r * 2;
+            ctx.beginPath(); ctx.arc(0, 0, t.r, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+            const img = images[body.plugin.tier]; const s = t.r * 2;
             ctx.drawImage(img, -s/2, -s/2, s, s);
           } else {
-            // テキストラベル
             ctx.fillStyle = '#1a1a1a';
             ctx.font = `bold ${Math.max(12, Math.floor(t.r*0.9))}px system-ui, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(t.name, 0, 1);
           }
           ctx.restore();
         }
-
-        // ゴースト（現在位置）
         if (!gameOver) {
           const t = TIERS[currentTier];
           ctx.save();
@@ -422,12 +340,9 @@
         }
       });
 
-      // 敗北チェック（一定間隔で軽く）
       let frame = 0;
       Events.on(engine, 'afterUpdate', () => {
-        frame++;
-        if (frame % 6 !== 0) return;
-        checkGameOver();
+        frame++; if (frame % 6 !== 0) return; checkGameOver();
       });
 
       function checkGameOver(){
@@ -437,9 +352,8 @@
         let minTop = Infinity;
         for (const body of bodies){
           if (!body.plugin || body.plugin.tier === undefined) continue;
-          // 直後のピースや落下中は除外（誤判定防止）
           const age = now - (body.plugin.bornAt || 0);
-          const settled = body.speed < 0.12; // ほぼ静止
+          const settled = body.speed < 0.12;
           if (age < 900 || !settled) continue;
           const r = TIERS[body.plugin.tier].r;
           const top = body.position.y - r;
@@ -451,34 +365,23 @@
           goPanel.classList.add('show');
         }
       }
-        if (minTop < LOSE_Y){
-          gameOver = true;
-          finalScoreEl.textContent = score;
-          goPanel.classList.add('show');
-        }
-      }
 
       function restart(){
-        // ワールド初期化
         const all = Composite.allBodies(engine.world);
         for (const b of all){
           if (!walls.includes(b)) try { World.remove(engine.world, b); } catch{}
         }
         score = 0; scoreEl.textContent = '0';
-        currentTier = rollTier();
-        nextTier = rollTier();
+        currentTier = rollTier(); nextTier = rollTier();
         drawNextPreview(nextTier);
-        gameOver = false;
-        goPanel.classList.remove('show');
+        gameOver = false; goPanel.classList.remove('show');
       }
 
       function drawNextPreview(tier){
         const t = TIERS[tier];
         nextCtx.clearRect(0,0,40,40);
-        nextCtx.save();
-        nextCtx.translate(20,20);
-        nextCtx.beginPath();
-        nextCtx.arc(0,0,14,0,Math.PI*2);
+        nextCtx.save(); nextCtx.translate(20,20);
+        nextCtx.beginPath(); nextCtx.arc(0,0,14,0,Math.PI*2);
         nextCtx.fillStyle = t.color; nextCtx.fill();
         nextCtx.strokeStyle = '#2a2a2a'; nextCtx.lineWidth = 1; nextCtx.stroke();
         nextCtx.fillStyle = '#1a1a1a';
@@ -494,4 +397,3 @@
   </script>
 </body>
 </html>
-
