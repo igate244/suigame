@@ -137,7 +137,7 @@
       <div class="gatePanel" id="pwGate">
         <div class="gateCard">
           <h3>パスワードを入力してください</h3>
-          <p style="margin:0 0 10px">開始パスワード：<b>AK</b>（大文字）</p>
+          <p style="margin:0 0 10px">開始するにはパスワードを入力してください</p>
           <input id="pwInput" type="password" placeholder="AK" autocomplete="off" />
           <div style="margin-top:12px; display:flex; gap:8px; justify-content:center">
             <button id="pwOk">開始する</button>
@@ -264,13 +264,18 @@
       // ==== パスワードロック ====
       let unlocked = false;
       function unlockIfValid(){
-        const v = (pwInput.value || '').trim();
+        // 全角→半角・大文字化して比較（スマホ対策）
+        const v = (pwInput.value || '').normalize('NFKC').toUpperCase().trim();
         if (v === 'AK') {
           unlocked = true;
           pwGate.style.display = 'none';
           startObstacles();
           pwInput.blur();
         } else {
+          pwInput.value = '';
+          pwInput.placeholder = 'ちがいます…もう一度';
+        }
+      } else {
           pwInput.value = '';
           pwInput.placeholder = 'ちがいます…もう一度';
         }
@@ -290,13 +295,19 @@
       }
       function spawnObstacle(){
         const x = 40 + Math.random()*(WIDTH-80);
-        const y = 40; // 画面上から落ちてくる
+        const y = 40;
         const r = 20 + Math.random()*16;
         const body = Bodies.polygon(x, y, 6, r, {
           restitution: 0.4,
           friction: 0.2,
           frictionAir: 0.004,
           render: { fillStyle: '#b48ef5', strokeStyle: '#2a2a2a', lineWidth: 1 }
+        });
+        const jokes = ['税','会議','宿題','納期','謎の書類','PPAP?','草'];
+        body.plugin = { obstacle: true, joke: jokes[Math.floor(Math.random()*jokes.length)] };
+        World.add(engine.world, body);
+        Body.setAngularVelocity(body, (Math.random()-0.5)*0.4);
+      }
         });
         body.plugin = { obstacle: true }; // 合体・判定の対象外
         World.add(engine.world, body);
@@ -469,6 +480,21 @@
             ctx.textBaseline = 'middle';
             ctx.fillText(t.name, 0, 1);
           }
+          ctx.restore();
+        }
+
+        // おじゃま物体のラベル（ユーモア）
+        for (const body of bodies){
+          if (!body.plugin || !body.plugin.obstacle) continue;
+          const { x, y } = body.position;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(body.angle);
+          ctx.fillStyle = '#141414';
+          ctx.font = 'bold 12px system-ui, sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          const text = body.plugin.joke || '???';
+          ctx.fillText(text, 0, 0);
           ctx.restore();
         }
 
